@@ -19,6 +19,7 @@ export async function postProcessFile(
         loader: 'tsx',
         format: 'esm',
         target: 'es2020',
+        jsx: 'preserve',
       });
       processedContent = result.code;
       processedPath = transpileExtension(filePath);

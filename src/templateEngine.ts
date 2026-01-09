@@ -2,8 +2,16 @@ import Handlebars from 'handlebars';
 
 export type TemplateContext = Record<string, any>;
 
+export interface IncludedFile {
+  template: string;
+  output: string;
+  prettier?: boolean;
+  transpile?: boolean;
+}
+
 interface FileState {
   imports: Set<string>;
+  includedFiles: IncludedFile[];
 }
 
 export class TemplateEngine {
@@ -57,21 +65,33 @@ export class TemplateEngine {
       return new Handlebars.SafeString(result + '\n');
     });
 
-    this.handlebars.registerHelper('includeFile', (filePath: string) => {
-      const partial = this.handlebars.partials[filePath];
-      if (partial) {
-        if (typeof partial === 'function') {
-          return new Handlebars.SafeString(partial(this.context));
-        }
-        return new Handlebars.SafeString(
-          this.handlebars.compile(partial)(this.context),
-        );
+    this.handlebars.registerHelper('includeFile', (options: any) => {
+      if (!this.currentFile) return '';
+
+      const template = options.hash.template || '';
+      const outputTemplate = options.hash.output || '';
+      const prettier = options.hash.prettier;
+      const transpile = options.hash.transpile;
+
+      if (template && outputTemplate) {
+        // Process the output path as a template
+        const output = this.handlebars.compile(outputTemplate)(this.context);
+
+        this.currentFile.includedFiles.push({
+          template,
+          output,
+          prettier,
+          transpile,
+        });
       }
+
       return '';
     });
   }
 
-  async processTemplate(templatePath: string): Promise<string> {
+  async processTemplate(
+    templatePath: string,
+  ): Promise<{content: string; includedFiles: IncludedFile[]}> {
     const fs = await import('fs/promises');
     const path = await import('path');
 
@@ -80,6 +100,7 @@ export class TemplateEngine {
 
     this.currentFile = {
       imports: new Set<string>(),
+      includedFiles: [],
     };
 
     // Register partials (for includeFile)
@@ -89,12 +110,14 @@ export class TemplateEngine {
     const result = template(this.context);
 
     const imports = Array.from(this.currentFile.imports);
+    const includedFiles = [...this.currentFile.includedFiles];
 
+    let content = result;
     if (imports.length > 0) {
-      return imports.join('\n') + '\n\n' + result;
+      content = imports.join('\n') + '\n\n' + result;
     }
 
-    return result;
+    return {content, includedFiles};
   }
 
   private async registerPartial(partialPath: string) {

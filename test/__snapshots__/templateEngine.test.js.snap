@@ -32,8 +32,17 @@ const items = ['item1', 'item2', 'item3'];
 `;
 
 exports[`TemplateEngine > should include entire files 1`] = `
-"export const helper = () => 'imported';
-
-export const main = () => helper();
+"export const main = () => helper();
 "
+`;
+
+exports[`TemplateEngine > should include entire files 2`] = `
+[
+  {
+    "output": "App",
+    "prettier": true,
+    "template": "App.tsx.hbs",
+    "transpile": true,
+  },
+]
 `;

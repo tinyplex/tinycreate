@@ -19,6 +19,7 @@ export interface FileConfig {
   output: string;
   prettier?: boolean;
   transpile?: boolean;
+  processedContent?: string;
 }
 
 export interface ProjectConfig {
@@ -26,6 +27,10 @@ export interface ProjectConfig {
   questions: Question[];
   createContext: (answers: Record<string, unknown>) => TemplateContext;
   getFiles: (context: TemplateContext) => FileConfig[] | Promise<FileConfig[]>;
+  processIncludedFile?: (
+    file: FileConfig,
+    context: TemplateContext,
+  ) => FileConfig;
   templateRoot: string;
   createDirectories?: (
     targetDir: string,
@@ -127,18 +132,48 @@ async function generateProject(
   const engine = new TemplateEngine(context, config.templateRoot);
 
   const files = await config.getFiles(context);
+  const allFiles = [...files];
+  const processedTemplates = new Set<string>();
 
-  for (const {template, output, prettier = false, transpile = false} of files) {
-    const processed = await engine.processTemplate(template);
+  // Process files and collect included files
+  for (const file of files) {
+    const {content, includedFiles} = await engine.processTemplate(
+      file.template,
+    );
+
+    // Store the processed content
+    file.processedContent = content;
+    processedTemplates.add(file.template);
+
+    // Add included files to the list (avoiding duplicates)
+    for (const included of includedFiles) {
+      if (!processedTemplates.has(included.template)) {
+        const processedIncluded = config.processIncludedFile
+          ? config.processIncludedFile(included, context)
+          : included;
+        allFiles.push({
+          ...processedIncluded,
+          processedContent: '', // Will be processed below
+        });
+      }
+    }
+  }
+
+  // Process any remaining included files
+  for (const file of allFiles) {
+    if (!file.processedContent) {
+      const {content} = await engine.processTemplate(file.template);
+      file.processedContent = content;
+    }
 
     const postProcessOptions: PostProcessOptions = {
-      prettier,
-      transpileToJS: transpile && !context.isTypescript,
+      prettier: file.prettier ?? false,
+      transpileToJS: file.transpile && !context.isTypescript,
     };
 
     const {content, filePath} = await postProcessFile(
-      output,
-      processed,
+      file.output,
+      file.processedContent,
       postProcessOptions,
     );
 

@@ -31,7 +31,7 @@ describe('TemplateEngine', () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const processed = await engine.processTemplate('imports.hbs');
+    const {content: processed} = await engine.processTemplate('imports.hbs');
     const {content} = await postProcessFile('test.ts', processed, {
       prettier: true,
     });
@@ -47,12 +47,14 @@ describe('TemplateEngine', () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const processed = await engine.processTemplate('main.hbs');
+    const {content: processed, includedFiles} =
+      await engine.processTemplate('main.hbs');
     const {content} = await postProcessFile('test.ts', processed, {
       prettier: true,
     });
 
     expect(content).toMatchSnapshot();
+    expect(includedFiles).toMatchSnapshot();
   });
 
   it('should handle lists with conditional items', async () => {
@@ -66,7 +68,7 @@ describe('TemplateEngine', () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const processed = await engine.processTemplate('list-block.hbs');
+    const {content: processed} = await engine.processTemplate('list-block.hbs');
     const {content} = await postProcessFile('test.js', processed, {
       prettier: true,
     });
@@ -92,7 +94,7 @@ describe('TemplateEngine', () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const processed = await engine.processTemplate('list-block.hbs');
+    const {content: processed} = await engine.processTemplate('list-block.hbs');
     const {content} = await postProcessFile('test.js', processed, {
       prettier: true,
     });
