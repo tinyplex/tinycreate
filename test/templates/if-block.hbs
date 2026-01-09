@@ -1,18 +1,18 @@
-/// IF context.isReact
+{{#if isReact}}
 import React from 'react';
 const Component = () => <div>Hello</div>;
-/// ENDIF
+{{/if}}
 
-/// IF context.isTypescript
+{{#if isTypescript}}
 const typed: string = 'TypeScript code';
-/// ELSE
+{{else}}
 const notTyped = 'JavaScript code';
-/// ENDIF
+{{/if}}
 
-/// IF !context.isReact
+{{#unless isReact}}
 const vanilla = 'Vanilla JS code';
-/// ENDIF
+{{/unless}}
 
 export const config = {
-  name: '/*/ context.projectName /*/',
+  name: '{{projectName}}',
 };

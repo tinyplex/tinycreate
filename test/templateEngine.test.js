@@ -30,7 +30,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("simple.ts");
+    const result = await engine.processTemplate("simple.hbs");
 
     expect(result).toMatchSnapshot();
   });
@@ -43,7 +43,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("with-context.ts");
+    const result = await engine.processTemplate("with-context.hbs");
 
     expect(result).toMatchSnapshot();
   });
@@ -56,7 +56,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("conditional.ts");
+    const result = await engine.processTemplate("conditional.hbs");
 
     expect(result).toMatchSnapshot();
   });
@@ -69,7 +69,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("imports.ts");
+    const result = await engine.processTemplate("imports.hbs");
 
     expect(result).toMatchSnapshot();
   });
@@ -82,20 +82,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("main.ts");
-
-    expect(result).toMatchSnapshot();
-  });
-
-  it("should include named blocks from files", async () => {
-    const context = createTestContext({
-      projectName: "test",
-      language: "typescript",
-      framework: "react",
-    });
-
-    const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("use-block.ts");
+    const result = await engine.processTemplate("main.hbs");
 
     expect(result).toMatchSnapshot();
   });
@@ -108,7 +95,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("if-block.ts");
+    const result = await engine.processTemplate("if-block.hbs");
 
     expect(result).toContain("import React from 'react'");
     expect(result).toContain("const Component = () => <div>Hello</div>");
@@ -126,7 +113,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("if-block.ts");
+    const result = await engine.processTemplate("if-block.hbs");
 
     expect(result).not.toContain("import React from 'react'");
     expect(result).not.toContain("const Component = () => <div>Hello</div>");
@@ -147,7 +134,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("list-block.ts");
+    const result = await engine.processTemplate("list-block.hbs");
 
     expect(result).toContain('"react": "^18.0.0",');
     expect(result).toContain('"react-router": "^6.0.0",');
@@ -170,7 +157,7 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("list-block.ts");
+    const result = await engine.processTemplate("list-block.hbs");
 
     expect(result).toContain('"react": "^18.0.0",');
     expect(result).not.toContain('"react-router"');

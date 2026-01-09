@@ -1,0 +1,22 @@
+const dependencies = {
+{{#list}}
+  "react": "^18.0.0"
+  {{#if includeRouter}}
+    "react-router": "^6.0.0"
+  {{/if}}
+  "lodash": "^4.17.21"
+  {{#if includeRedux}}
+    "redux": "^4.2.0"
+  {{/if}}
+{{/list}}
+};
+
+const items = [
+{{#list}}
+  'item1'
+  {{#if hasItem2}}
+    'item2'
+  {{/if}}
+  'item3'
+{{/list}}
+];

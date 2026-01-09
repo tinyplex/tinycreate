@@ -1,5 +1,5 @@
-/// return await includeBlock('blocks.ts', 'setup');
+{{includeBlock 'blocks.ts' 'setup'}}
 
 export const init = () => {
-  /// return await includeBlock('blocks.ts', 'handler');
+  {{includeBlock 'blocks.ts' 'handler'}}
 };
