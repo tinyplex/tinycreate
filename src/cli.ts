@@ -86,7 +86,9 @@ export async function createCLI(
 
   if (existsSync(projectPath)) {
     console.error(
-      `❌ Error: Directory "${projectName}" already exists. Please choose a different name.`,
+      `❌ Error: Directory "${
+        projectName
+      }" already exists. Please choose a different name.`,
     );
     process.exit(1);
   }
