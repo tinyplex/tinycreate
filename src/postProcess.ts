@@ -91,7 +91,11 @@ function inferParser(filePath: string): string {
   if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) {
     return 'babel';
   }
-  if (filePath.endsWith('.json')) {
+  if (
+    filePath.endsWith('.json') ||
+    filePath.endsWith('.prettierrc') ||
+    filePath.endsWith('.eslintrc')
+  ) {
     return 'json';
   }
   if (filePath.endsWith('.css')) {

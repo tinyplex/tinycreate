@@ -1,3 +1,4 @@
+import {existsSync} from 'fs';
 import {mkdir, writeFile} from 'fs/promises';
 import {join} from 'path';
 import prompts from 'prompts';
@@ -81,11 +82,18 @@ export async function createCLI(
   const projectName =
     (answers.projectName as string) || (context.projectName as string);
 
+  const projectPath = join(process.cwd(), projectName);
+
+  if (existsSync(projectPath)) {
+    console.error(
+      `❌ Error: Directory "${projectName}" already exists. Please choose a different name.`,
+    );
+    process.exit(1);
+  }
+
   if (!nonInteractive) {
     console.log(`\n📦 Creating your project...\n`);
   }
-
-  const projectPath = join(process.cwd(), projectName);
 
   try {
     await mkdir(projectPath, {recursive: true});
