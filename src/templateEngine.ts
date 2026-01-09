@@ -83,17 +83,21 @@ export class TemplateEngine {
               const whenLines: string[] = [];
               const elseLines: string[] = [];
               let inElse = false;
+              let depth = 1;
               j++;
 
-              while (j < listLines.length) {
+              while (j < listLines.length && depth > 0) {
                 const nestedLine = listLines[j];
                 const nestedTrimmed = nestedLine.trim();
 
-                if (nestedTrimmed === "/// ENDIF") {
-                  break;
-                }
-
-                if (nestedTrimmed === "/// ELSE") {
+                if (nestedTrimmed.startsWith("/// IF ")) {
+                  depth++;
+                } else if (nestedTrimmed === "/// ENDIF") {
+                  depth--;
+                  if (depth === 0) {
+                    break;
+                  }
+                } else if (nestedTrimmed === "/// ELSE" && depth === 1) {
                   inElse = true;
                   j++;
                   continue;
@@ -116,19 +120,9 @@ export class TemplateEngine {
                   ? whenLines
                   : elseLines;
 
-              for (const nestedLine of linesToProcess) {
-                const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
-                let processedLine = nestedLine;
-                let match;
-                while ((match = directiveRegex.exec(nestedLine)) !== null) {
-                  const inlineDirective = match[1].trim();
-                  const result = await this.evaluateDirective(inlineDirective);
-                  processedLine = processedLine.replace(match[0], result);
-                }
-                if (processedLine.trim()) {
-                  processedItems.push(processedLine);
-                }
-              }
+              const recursivelyProcessedLines =
+                await this.processLines(linesToProcess);
+              processedItems.push(...recursivelyProcessedLines);
             } else if (trimmed.startsWith("///")) {
               const blockDirective = trimmed.slice(3).trim();
               const result = await this.evaluateDirective(blockDirective);
@@ -168,17 +162,21 @@ export class TemplateEngine {
           const whenLines: string[] = [];
           const elseLines: string[] = [];
           let inElse = false;
+          let depth = 1;
           i++;
 
-          while (i < lines.length) {
+          while (i < lines.length && depth > 0) {
             const blockLine = lines[i];
             const trimmed = blockLine.trim();
 
-            if (trimmed === "/// ENDIF") {
-              break;
-            }
-
-            if (trimmed === "/// ELSE") {
+            if (trimmed.startsWith("/// IF ")) {
+              depth++;
+            } else if (trimmed === "/// ENDIF") {
+              depth--;
+              if (depth === 0) {
+                break;
+              }
+            } else if (trimmed === "/// ELSE" && depth === 1) {
               inElse = true;
               i++;
               continue;
@@ -201,17 +199,9 @@ export class TemplateEngine {
               ? whenLines
               : elseLines;
 
-          for (const blockLine of linesToProcess) {
-            if (blockLine.trim().startsWith("///")) {
-              const blockDirective = blockLine.trim().slice(3).trim();
-              const result = await this.evaluateDirective(blockDirective);
-              if (result) {
-                processedLines.push(result);
-              }
-            } else {
-              processedLines.push(blockLine);
-            }
-          }
+          const recursivelyProcessedLines =
+            await this.processLines(linesToProcess);
+          processedLines.push(...recursivelyProcessedLines);
         } else {
           const result = await this.evaluateDirective(directive);
           if (result) {
@@ -238,6 +228,81 @@ export class TemplateEngine {
     }
 
     return content;
+  }
+
+  private async processLines(lines: string[]): Promise<string[]> {
+    const processedLines: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+
+      if (line.trim().startsWith("///")) {
+        const directive = line.trim().slice(3).trim();
+
+        if (directive.startsWith("IF ")) {
+          const condition = directive.slice(3).trim();
+          const whenLines: string[] = [];
+          const elseLines: string[] = [];
+          let inElse = false;
+          let depth = 1;
+          i++;
+
+          while (i < lines.length && depth > 0) {
+            const blockLine = lines[i];
+            const trimmed = blockLine.trim();
+
+            if (trimmed.startsWith("/// IF ")) {
+              depth++;
+            } else if (trimmed === "/// ENDIF") {
+              depth--;
+              if (depth === 0) {
+                break;
+              }
+            } else if (trimmed === "/// ELSE" && depth === 1) {
+              inElse = true;
+              i++;
+              continue;
+            }
+
+            if (inElse) {
+              elseLines.push(blockLine);
+            } else {
+              whenLines.push(blockLine);
+            }
+            i++;
+          }
+
+          const conditionResult = await this.evaluateDirective(
+            `return ${condition}`,
+          );
+
+          const linesToProcess =
+            conditionResult === true || conditionResult === "true"
+              ? whenLines
+              : elseLines;
+
+          const recursivelyProcessedLines =
+            await this.processLines(linesToProcess);
+          processedLines.push(...recursivelyProcessedLines);
+        } else {
+          const result = await this.evaluateDirective(directive);
+          if (result) {
+            processedLines.push(result);
+          }
+        }
+      } else {
+        const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
+        let match;
+        while ((match = directiveRegex.exec(line)) !== null) {
+          const directive = match[1].trim();
+          const result = await this.evaluateDirective(directive);
+          line = line.replace(match[0], result);
+        }
+        processedLines.push(line);
+      }
+    }
+
+    return processedLines;
   }
 
   private async evaluateDirective(directive: string): Promise<string> {
