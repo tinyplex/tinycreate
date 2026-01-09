@@ -55,7 +55,7 @@ export const Component: React.FC<{title: string}> = ({title}) => {
 
     expect(result.content).not.toContain(':number');
     expect(result.content).toContain('add');
-    // Should be formatted (spaces around =, etc)
+
     expect(result.content).toMatch(/const add\s*=\s*\(/);
     expect(result.filePath).toBe('math.js');
   });
@@ -65,7 +65,7 @@ export const Component: React.FC<{title: string}> = ({title}) => {
 
     const result = await postProcessFile('styles.css', css, {
       prettier: true,
-      transpileToJS: true, // Should be ignored for CSS
+      transpileToJS: true,
     });
 
     expect(result.content).toContain('margin');

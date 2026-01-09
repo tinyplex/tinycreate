@@ -1,4 +1,4 @@
-import * as esbuild from "esbuild";
+import * as esbuild from 'esbuild';
 
 export interface PostProcessOptions {
   prettier?: boolean;
@@ -9,33 +9,35 @@ export async function postProcessFile(
   filePath: string,
   content: string,
   options: PostProcessOptions = {},
-): Promise<{ filePath: string; content: string }> {
+): Promise<{filePath: string; content: string}> {
   let processedContent = content;
   let processedPath = filePath;
 
   if (options.transpileToJS && canTranspile(filePath)) {
     try {
       const result = await esbuild.transform(processedContent, {
-        loader: "tsx",
-        format: "esm",
-        target: "es2020",
+        loader: 'tsx',
+        format: 'esm',
+        target: 'es2020',
       });
       processedContent = result.code;
       processedPath = transpileExtension(filePath);
     } catch (error) {
       throw new Error(
-        `Failed to transpile ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to transpile ${filePath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       );
     }
   }
 
   if (options.prettier) {
     try {
-      const prettier = await import("prettier");
+      const prettier = await import('prettier');
       const prettierConfig = {
         parser: inferParser(processedPath),
         singleQuote: true,
-        trailingComma: "all" as const,
+        trailingComma: 'all' as const,
         bracketSpacing: false,
       };
       processedContent = await prettier.format(
@@ -61,7 +63,7 @@ export async function postProcessProject(
   const processedFiles = new Map<string, string>();
 
   for (const [filePath, content] of files.entries()) {
-    const { filePath: newPath, content: newContent } = await postProcessFile(
+    const {filePath: newPath, content: newContent} = await postProcessFile(
       filePath,
       content,
       options,
@@ -78,28 +80,28 @@ function canTranspile(filePath: string): boolean {
 
 function transpileExtension(filePath: string): string {
   return filePath.replace(/\.tsx?$/, (match) => {
-    return match === ".tsx" ? ".jsx" : ".js";
+    return match === '.tsx' ? '.jsx' : '.js';
   });
 }
 
 function inferParser(filePath: string): string {
-  if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
-    return "typescript";
+  if (filePath.endsWith('.ts') || filePath.endsWith('.tsx')) {
+    return 'typescript';
   }
-  if (filePath.endsWith(".js") || filePath.endsWith(".jsx")) {
-    return "babel";
+  if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) {
+    return 'babel';
   }
-  if (filePath.endsWith(".json")) {
-    return "json";
+  if (filePath.endsWith('.json')) {
+    return 'json';
   }
-  if (filePath.endsWith(".css")) {
-    return "css";
+  if (filePath.endsWith('.css')) {
+    return 'css';
   }
-  if (filePath.endsWith(".html")) {
-    return "html";
+  if (filePath.endsWith('.html')) {
+    return 'html';
   }
-  if (filePath.endsWith(".md")) {
-    return "markdown";
+  if (filePath.endsWith('.md')) {
+    return 'markdown';
   }
-  return "babel";
+  return 'babel';
 }

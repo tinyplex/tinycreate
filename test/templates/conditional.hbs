@@ -1,4 +1,0 @@
-const base = 'hello';
-{{#if isReact}}import React from "react";{{/if}}
-{{#if isTypescript}}const typed: string = "yes";{{/if}}
-{{#unless isReact}}const vanillaOnly = true;{{/unless}}

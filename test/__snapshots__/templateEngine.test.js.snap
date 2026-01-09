@@ -4,93 +4,36 @@ exports[`TemplateEngine > should add imports to top of file 1`] = `
 "import React from 'react';
 import type {FC} from 'react';
 
-
-
-
 export const Component = () => {
   return null;
 };
 "
 `;
 
-exports[`TemplateEngine > should evaluate directives with context access 1`] = `
-"const project = "my-app";
-const isTS = true
-const ext = "tsx";
-"
-`;
-
-exports[`TemplateEngine > should handle IF/ENDIF block syntax with false condition 1`] = `
-"
-const notTyped = 'JavaScript code';
-
-const vanilla = 'Vanilla JS code';
-
-export const config = {
-  name: 'vanilla-app',
-};
-"
-`;
-
-exports[`TemplateEngine > should handle IF/ENDIF block syntax with true condition 1`] = `
-"import React from 'react';
-const Component = () => <div>Hello</div>;
-
-const typed: string = 'TypeScript code';
-
-
-export const config = {
-  name: 'react-app',
-};
-"
-`;
-
-exports[`TemplateEngine > should handle LIST/ENDLIST with all items excluded 1`] = `
+exports[`TemplateEngine > should handle lists with all items excluded 1`] = `
 "const dependencies = {
-  "react": "^18.0.0",
-  "lodash": "^4.17.21"
+  react: '^18.0.0',
+  lodash: '^4.17.21',
 };
 
-const items = [
-  'item1',
-  'item3'
-];
+const items = ['item1', 'item3'];
 "
 `;
 
-exports[`TemplateEngine > should handle LIST/ENDLIST with conditional items 1`] = `
+exports[`TemplateEngine > should handle lists with conditional items 1`] = `
 "const dependencies = {
-  "react": "^18.0.0",
-  "react-router": "^6.0.0",
-  "lodash": "^4.17.21"
+  react: '^18.0.0',
+  'react-router': '^6.0.0',
+  lodash: '^4.17.21',
 };
 
-const items = [
-  'item1',
-  'item2',
-  'item3'
-];
-"
-`;
-
-exports[`TemplateEngine > should handle when() conditional helper 1`] = `
-"const base = 'hello';
-
-const typed: string = "yes";
-const vanillaOnly = true;
+const items = ['item1', 'item2', 'item3'];
 "
 `;
 
 exports[`TemplateEngine > should include entire files 1`] = `
 "export const helper = () => 'imported';
 
-
 export const main = () => helper();
-"
-`;
-
-exports[`TemplateEngine > should process a simple template 1`] = `
-"const name = 'test';
-console.log(name);
 "
 `;
