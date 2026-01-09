@@ -137,9 +137,18 @@ export class TemplateEngine {
       const helperNames = Object.keys(this.helpers);
       const helperValues = Object.values(this.helpers);
 
+      const trimmed = directive.trim();
+      const code =
+        trimmed.startsWith("return ") ||
+        trimmed.startsWith("if ") ||
+        trimmed.startsWith("for ") ||
+        trimmed.startsWith("while ")
+          ? directive
+          : `return ${directive}`;
+
       const fn = new Function(
         ...helperNames,
-        `return (async () => { ${directive} })()`,
+        `return (async () => { ${code} })()`,
       );
 
       const result = await fn(...helperValues);

@@ -14,5 +14,5 @@ const vanilla = 'Vanilla JS code';
 /// ENDIF
 
 export const config = {
-  name: '/*/ return context.projectName; /*/',
+  name: '/*/ context.projectName /*/',
 };
