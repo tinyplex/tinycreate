@@ -55,25 +55,54 @@ export class TemplateEngine {
       if (line.trim().startsWith("///")) {
         const directive = line.trim().slice(3).trim();
 
-        if (directive.startsWith("WHEN ") && directive.endsWith("{")) {
-          const condition = directive.slice(5, -1).trim();
-          const blockLines: string[] = [];
+        if (directive.startsWith("IF ")) {
+          const condition = directive.slice(3).trim();
+          const whenLines: string[] = [];
+          const elseLines: string[] = [];
+          let inElse = false;
           i++;
 
           while (i < lines.length) {
             const blockLine = lines[i];
-            if (blockLine.trim() === "/// } ENDWHEN") {
+            const trimmed = blockLine.trim();
+
+            if (trimmed === "/// ENDIF") {
               break;
             }
-            blockLines.push(blockLine);
+
+            if (trimmed === "/// ELSE") {
+              inElse = true;
+              i++;
+              continue;
+            }
+
+            if (inElse) {
+              elseLines.push(blockLine);
+            } else {
+              whenLines.push(blockLine);
+            }
             i++;
           }
 
           const conditionResult = await this.evaluateDirective(
             `return ${condition}`,
           );
-          if (conditionResult === true || conditionResult === "true") {
-            processedLines.push(...blockLines);
+
+          const linesToProcess =
+            conditionResult === true || conditionResult === "true"
+              ? whenLines
+              : elseLines;
+
+          for (const blockLine of linesToProcess) {
+            if (blockLine.trim().startsWith("///")) {
+              const blockDirective = blockLine.trim().slice(3).trim();
+              const result = await this.evaluateDirective(blockDirective);
+              if (result) {
+                processedLines.push(result);
+              }
+            } else {
+              processedLines.push(blockLine);
+            }
           }
         } else {
           const result = await this.evaluateDirective(directive);

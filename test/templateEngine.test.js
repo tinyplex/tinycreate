@@ -99,7 +99,7 @@ describe("TemplateEngine", () => {
     expect(result).toMatchSnapshot();
   });
 
-  it("should handle WHEN/ENDWHEN block syntax with true condition", async () => {
+  it("should handle IF/ENDIF block syntax with true condition", async () => {
     const context = createTestContext({
       projectName: "react-app",
       language: "typescript",
@@ -107,16 +107,17 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("when-block.ts");
+    const result = await engine.processTemplate("if-block.ts");
 
     expect(result).toContain("import React from 'react'");
     expect(result).toContain("const Component = () => <div>Hello</div>");
     expect(result).toContain("const typed: string = 'TypeScript code'");
+    expect(result).not.toContain("const notTyped = 'JavaScript code'");
     expect(result).not.toContain("const vanilla = 'Vanilla JS code'");
     expect(result).toMatchSnapshot();
   });
 
-  it("should handle WHEN/ENDWHEN block syntax with false condition", async () => {
+  it("should handle IF/ENDIF block syntax with false condition", async () => {
     const context = createTestContext({
       projectName: "vanilla-app",
       language: "javascript",
@@ -124,11 +125,12 @@ describe("TemplateEngine", () => {
     });
 
     const engine = new TemplateEngine(context, TEMPLATES_DIR);
-    const result = await engine.processTemplate("when-block.ts");
+    const result = await engine.processTemplate("if-block.ts");
 
     expect(result).not.toContain("import React from 'react'");
     expect(result).not.toContain("const Component = () => <div>Hello</div>");
     expect(result).not.toContain("const typed: string = 'TypeScript code'");
+    expect(result).toContain("const notTyped = 'JavaScript code'");
     expect(result).toContain("const vanilla = 'Vanilla JS code'");
     expect(result).toMatchSnapshot();
   });

@@ -1,15 +1,17 @@
-/// WHEN context.isReact {
+/// IF context.isReact
 import React from 'react';
 const Component = () => <div>Hello</div>;
-/// } ENDWHEN
+/// ENDIF
 
-/// WHEN context.isTypescript {
+/// IF context.isTypescript
 const typed: string = 'TypeScript code';
-/// } ENDWHEN
+/// ELSE
+const notTyped = 'JavaScript code';
+/// ENDIF
 
-/// WHEN !context.isReact {
+/// IF !context.isReact
 const vanilla = 'Vanilla JS code';
-/// } ENDWHEN
+/// ENDIF
 
 export const config = {
   name: '/*/ return context.projectName; /*/',
