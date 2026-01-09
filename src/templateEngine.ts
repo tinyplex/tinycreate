@@ -16,10 +16,10 @@ interface FileState {
 
 interface TemplateHelpers {
   // Include a block of code from a partial file
-  includeBlock: (path: string, blockName?: string) => string;
+  includeBlock: (path: string, blockName?: string) => Promise<string>;
 
   // Include an entire file
-  includeFile: (path: string) => string;
+  includeFile: (path: string) => Promise<string>;
 
   // Add an import statement (will be added to top of file)
   addImport: (statement: string) => void;
