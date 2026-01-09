@@ -18,6 +18,30 @@ const ext = "tsx";
 "
 `;
 
+exports[`TemplateEngine > should handle WHEN/ENDWHEN block syntax with false condition 1`] = `
+"
+
+const vanilla = 'Vanilla JS code';
+
+export const config = {
+  name: 'vanilla-app',
+};
+"
+`;
+
+exports[`TemplateEngine > should handle WHEN/ENDWHEN block syntax with true condition 1`] = `
+"import React from 'react';
+const Component = () => <div>Hello</div>;
+
+const typed: string = 'TypeScript code';
+
+
+export const config = {
+  name: 'react-app',
+};
+"
+`;
+
 exports[`TemplateEngine > should handle when() conditional helper 1`] = `
 "const base = 'hello';
 const typed: string = "yes";

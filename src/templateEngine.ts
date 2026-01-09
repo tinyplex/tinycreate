@@ -54,9 +54,32 @@ export class TemplateEngine {
 
       if (line.trim().startsWith("///")) {
         const directive = line.trim().slice(3).trim();
-        const result = await this.evaluateDirective(directive);
-        if (result) {
-          processedLines.push(result);
+
+        if (directive.startsWith("WHEN ") && directive.endsWith("{")) {
+          const condition = directive.slice(5, -1).trim();
+          const blockLines: string[] = [];
+          i++;
+
+          while (i < lines.length) {
+            const blockLine = lines[i];
+            if (blockLine.trim() === "/// } ENDWHEN") {
+              break;
+            }
+            blockLines.push(blockLine);
+            i++;
+          }
+
+          const conditionResult = await this.evaluateDirective(
+            `return ${condition}`,
+          );
+          if (conditionResult === true || conditionResult === "true") {
+            processedLines.push(...blockLines);
+          }
+        } else {
+          const result = await this.evaluateDirective(directive);
+          if (result) {
+            processedLines.push(result);
+          }
         }
       } else {
         const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
