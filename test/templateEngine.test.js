@@ -18,6 +18,7 @@ const createTestContext = (answers) => ({
       : answers.framework === "react"
         ? "jsx"
         : "js",
+  ...answers,
 });
 
 describe("TemplateEngine", () => {
@@ -132,6 +133,52 @@ describe("TemplateEngine", () => {
     expect(result).not.toContain("const typed: string = 'TypeScript code'");
     expect(result).toContain("const notTyped = 'JavaScript code'");
     expect(result).toContain("const vanilla = 'Vanilla JS code'");
+    expect(result).toMatchSnapshot();
+  });
+
+  it("should handle LIST/ENDLIST with conditional items", async () => {
+    const context = createTestContext({
+      projectName: "test",
+      language: "typescript",
+      framework: "react",
+      includeRouter: true,
+      includeRedux: false,
+      hasItem2: true,
+    });
+
+    const engine = new TemplateEngine(context, TEMPLATES_DIR);
+    const result = await engine.processTemplate("list-block.ts");
+
+    expect(result).toContain('"react": "^18.0.0",');
+    expect(result).toContain('"react-router": "^6.0.0",');
+    expect(result).toContain('"lodash": "^4.17.21"');
+    expect(result).not.toContain('"redux"');
+    expect(result).toContain("'item1',");
+    expect(result).toContain("'item2',");
+    expect(result).toContain("'item3'");
+    expect(result).toMatchSnapshot();
+  });
+
+  it("should handle LIST/ENDLIST with all items excluded", async () => {
+    const context = createTestContext({
+      projectName: "test",
+      language: "typescript",
+      framework: "react",
+      includeRouter: false,
+      includeRedux: false,
+      hasItem2: false,
+    });
+
+    const engine = new TemplateEngine(context, TEMPLATES_DIR);
+    const result = await engine.processTemplate("list-block.ts");
+
+    expect(result).toContain('"react": "^18.0.0",');
+    expect(result).not.toContain('"react-router"');
+    expect(result).toContain('"lodash": "^4.17.21"');
+    expect(result).not.toContain('"redux"');
+    expect(result).toContain("'item1',");
+    expect(result).not.toContain("'item2'");
+    expect(result).toContain("'item3'");
     expect(result).toMatchSnapshot();
   });
 });

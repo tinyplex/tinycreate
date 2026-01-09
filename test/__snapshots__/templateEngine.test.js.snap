@@ -43,6 +43,34 @@ export const config = {
 "
 `;
 
+exports[`TemplateEngine > should handle LIST/ENDLIST with all items excluded 1`] = `
+"const dependencies = {
+  "react": "^18.0.0",
+  "lodash": "^4.17.21"
+};
+
+const items = [
+  'item1',
+  'item3'
+];
+"
+`;
+
+exports[`TemplateEngine > should handle LIST/ENDLIST with conditional items 1`] = `
+"const dependencies = {
+  "react": "^18.0.0",
+  "react-router": "^6.0.0",
+  "lodash": "^4.17.21"
+};
+
+const items = [
+  'item1',
+  'item2',
+  'item3'
+];
+"
+`;
+
 exports[`TemplateEngine > should handle when() conditional helper 1`] = `
 "const base = 'hello';
 const typed: string = "yes";

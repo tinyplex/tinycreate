@@ -55,7 +55,115 @@ export class TemplateEngine {
       if (line.trim().startsWith("///")) {
         const directive = line.trim().slice(3).trim();
 
-        if (directive.startsWith("IF ")) {
+        if (directive.startsWith("LIST")) {
+          const separatorMatch = directive.match(/^LIST\s+(.+)$/);
+          const separator = separatorMatch ? separatorMatch[1].trim() : ",";
+          const listLines: string[] = [];
+          i++;
+
+          while (i < lines.length) {
+            const blockLine = lines[i];
+            const trimmed = blockLine.trim();
+
+            if (trimmed === "/// ENDLIST") {
+              break;
+            }
+
+            listLines.push(blockLine);
+            i++;
+          }
+
+          const processedItems: string[] = [];
+          for (let j = 0; j < listLines.length; j++) {
+            const blockLine = listLines[j];
+            const trimmed = blockLine.trim();
+
+            if (trimmed.startsWith("/// IF ")) {
+              const condition = trimmed.slice(7).trim();
+              const whenLines: string[] = [];
+              const elseLines: string[] = [];
+              let inElse = false;
+              j++;
+
+              while (j < listLines.length) {
+                const nestedLine = listLines[j];
+                const nestedTrimmed = nestedLine.trim();
+
+                if (nestedTrimmed === "/// ENDIF") {
+                  break;
+                }
+
+                if (nestedTrimmed === "/// ELSE") {
+                  inElse = true;
+                  j++;
+                  continue;
+                }
+
+                if (inElse) {
+                  elseLines.push(nestedLine);
+                } else {
+                  whenLines.push(nestedLine);
+                }
+                j++;
+              }
+
+              const conditionResult = await this.evaluateDirective(
+                `return ${condition}`,
+              );
+
+              const linesToProcess =
+                conditionResult === true || conditionResult === "true"
+                  ? whenLines
+                  : elseLines;
+
+              for (const nestedLine of linesToProcess) {
+                const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
+                let processedLine = nestedLine;
+                let match;
+                while ((match = directiveRegex.exec(nestedLine)) !== null) {
+                  const inlineDirective = match[1].trim();
+                  const result = await this.evaluateDirective(inlineDirective);
+                  processedLine = processedLine.replace(match[0], result);
+                }
+                if (processedLine.trim()) {
+                  processedItems.push(processedLine);
+                }
+              }
+            } else if (trimmed.startsWith("///")) {
+              const blockDirective = trimmed.slice(3).trim();
+              const result = await this.evaluateDirective(blockDirective);
+              if (result) {
+                processedItems.push(result);
+              }
+            } else {
+              const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
+              let processedLine = blockLine;
+              let match;
+              while ((match = directiveRegex.exec(blockLine)) !== null) {
+                const inlineDirective = match[1].trim();
+                const result = await this.evaluateDirective(inlineDirective);
+                processedLine = processedLine.replace(match[0], result);
+              }
+              if (processedLine.trim()) {
+                processedItems.push(processedLine);
+              }
+            }
+          }
+
+          for (let j = 0; j < processedItems.length; j++) {
+            const item = processedItems[j];
+            const isLast = j === processedItems.length - 1;
+            const hasSeparator = item.trimEnd().endsWith(separator);
+
+            if (!isLast && !hasSeparator) {
+              processedLines.push(item + separator);
+            } else if (isLast && hasSeparator) {
+              processedLines.push(item.trimEnd().slice(0, -separator.length));
+            } else {
+              processedLines.push(item);
+            }
+          }
+        } else if (directive.startsWith("IF ")) {
           const condition = directive.slice(3).trim();
           const whenLines: string[] = [];
           const elseLines: string[] = [];
