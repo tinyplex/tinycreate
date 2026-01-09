@@ -5,6 +5,15 @@ import prompts from 'prompts';
 import {postProcessFile, type PostProcessOptions} from './postProcess.js';
 import {TemplateEngine, type TemplateContext} from './templateEngine.js';
 
+function detectPackageManager(): string {
+  const userAgent = process.env.npm_config_user_agent || '';
+
+  if (userAgent.includes('pnpm')) return 'pnpm';
+  if (userAgent.includes('bun')) return 'bun';
+  if (userAgent.includes('yarn')) return 'yarn';
+  return 'npm';
+}
+
 export interface Question {
   type: 'text' | 'select' | 'confirm';
   name: string;
@@ -36,7 +45,12 @@ export interface ProjectConfig {
     targetDir: string,
     context: TemplateContext,
   ) => Promise<void>;
-  onSuccess?: (projectName: string, context: TemplateContext) => void;
+  installCommand?: string;
+  devCommand?: string;
+  onSuccess?: (
+    projectName: string,
+    context: TemplateContext,
+  ) => void | Promise<void>;
 }
 
 export interface CLIOptions {
@@ -113,8 +127,17 @@ export async function createCLI(
 
     if (!nonInteractive) {
       console.log('✅ Done!\n');
-      if (config.onSuccess) {
-        config.onSuccess(projectName, context);
+
+      // Handle install and run if configured
+      if (config.installCommand && config.devCommand && context.installAndRun) {
+        await handleInstallAndRun(
+          projectName,
+          projectPath,
+          config.installCommand,
+          config.devCommand,
+        );
+      } else if (config.onSuccess) {
+        await config.onSuccess(projectName, context);
       }
     }
   } catch (error) {
@@ -122,6 +145,63 @@ export async function createCLI(
     console.error('❌ Error creating project:', errorMessage);
     process.exit(1);
   }
+}
+
+async function handleInstallAndRun(
+  projectName: string,
+  projectPath: string,
+  installCommand: string,
+  devCommand: string,
+): Promise<void> {
+  const {spawn} = await import('child_process');
+  const pm = detectPackageManager();
+
+  // Replace {pm} placeholder with detected package manager
+  const install = installCommand.replace(/{pm}/g, pm);
+  const dev = devCommand.replace(/{pm}/g, pm);
+
+  const [installCmd, ...installArgs] = install.split(' ');
+  const [devCmd, ...devArgs] = dev.split(' ');
+
+  console.log(`📦 Installing dependencies with ${pm}...\n`);
+
+  const installProcess = spawn(installCmd, installArgs, {
+    cwd: projectPath,
+    stdio: 'inherit',
+    shell: true,
+  });
+
+  installProcess.on('close', (code) => {
+    if (code !== 0) {
+      console.error('\n❌ Failed to install dependencies');
+      console.log('\nNext steps:');
+      console.log(`  cd ${projectName}`);
+      console.log(`  ${install}`);
+      console.log(`  ${dev}`);
+      return;
+    }
+
+    console.log('\n✅ Dependencies installed!\n');
+    console.log('🚀 Starting development server...\n');
+
+    const devProcess = spawn(devCmd, devArgs, {
+      cwd: projectPath,
+      stdio: 'inherit',
+      shell: true,
+    });
+
+    devProcess.on('error', (error) => {
+      console.error('\n❌ Failed to start dev server:', error.message);
+    });
+  });
+
+  installProcess.on('error', (error) => {
+    console.error('\n❌ Failed to install dependencies:', error.message);
+    console.log('\nNext steps:');
+    console.log(`  cd ${projectName}`);
+    console.log(`  ${install}`);
+    console.log(`  ${dev}`);
+  });
 }
 
 async function generateProject(
