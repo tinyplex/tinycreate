@@ -1,11 +1,3 @@
-/**
- * Template Engine for tinycreate
- *
- * Processes template files with triple-slash directives (///)
- * that can execute JavaScript to generate dynamic content.
- */
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TemplateContext = Record<string, any>;
 
 interface FileState {
@@ -15,19 +7,10 @@ interface FileState {
 }
 
 interface TemplateHelpers {
-  // Include a block of code from a partial file
   includeBlock: (path: string, blockName?: string) => Promise<string>;
-
-  // Include an entire file
   includeFile: (path: string) => Promise<string>;
-
-  // Add an import statement (will be added to top of file)
   addImport: (statement: string) => void;
-
-  // Conditional content based on context
   when: (condition: boolean, content: string) => string;
-
-  // Access to context
   context: TemplateContext;
 }
 
@@ -41,7 +24,6 @@ export class TemplateEngine {
     this.context = context;
     this.templateRoot = templateRoot;
 
-    // Setup helper functions available to templates
     this.helpers = {
       includeBlock: this.includeBlock.bind(this),
       includeFile: this.includeFile.bind(this),
@@ -51,9 +33,6 @@ export class TemplateEngine {
     };
   }
 
-  /**
-   * Process a template file and return the generated content
-   */
   async processTemplate(templatePath: string): Promise<string> {
     const fs = await import("fs/promises");
     const path = await import("path");
@@ -61,21 +40,18 @@ export class TemplateEngine {
     const fullPath = path.join(this.templateRoot, templatePath);
     const rawContent = await fs.readFile(fullPath, "utf-8");
 
-    // Initialize file state
     this.currentFile = {
       content: "",
       imports: new Set<string>(),
       path: templatePath,
     };
 
-    // Process line by line
     const lines = rawContent.split("\n");
     const processedLines: string[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
 
-      // Check for triple-slash directive at start of line
       if (line.trim().startsWith("///")) {
         const directive = line.trim().slice(3).trim();
         const result = await this.evaluateDirective(directive);
@@ -83,7 +59,6 @@ export class TemplateEngine {
           processedLines.push(result);
         }
       } else {
-        // Check for inline directives (/*/ ... /*/ within the line)
         const directiveRegex = /\/\*\/\s*(.+?)\s*\/\*\//g;
         let match;
         while ((match = directiveRegex.exec(line)) !== null) {
@@ -95,7 +70,6 @@ export class TemplateEngine {
       }
     }
 
-    // Prepend imports at the top
     const imports = Array.from(this.currentFile.imports);
     const content = processedLines.join("\n");
 
@@ -106,16 +80,11 @@ export class TemplateEngine {
     return content;
   }
 
-  /**
-   * Evaluate a template directive
-   */
   private async evaluateDirective(directive: string): Promise<string> {
     try {
-      // Create a function with access to helpers
       const helperNames = Object.keys(this.helpers);
       const helperValues = Object.values(this.helpers);
 
-      // Wrap in async function so we can use await
       const fn = new Function(
         ...helperNames,
         `return (async () => { ${directive} })()`,
@@ -129,9 +98,6 @@ export class TemplateEngine {
     }
   }
 
-  /**
-   * Include a named block from a partial file
-   */
   private async includeBlock(
     partialPath: string,
     blockName?: string,
@@ -142,7 +108,6 @@ export class TemplateEngine {
       return content;
     }
 
-    // Extract named block between /// BEGIN blockName and /// END blockName
     const beginMarker = `/// BEGIN ${blockName}`;
     const endMarker = `/// END ${blockName}`;
 
@@ -161,9 +126,6 @@ export class TemplateEngine {
     return blockContent.trim();
   }
 
-  /**
-   * Include an entire file
-   */
   private async includeFile(filePath: string): Promise<string> {
     const fs = await import("fs/promises");
     const path = await import("path");
@@ -172,9 +134,6 @@ export class TemplateEngine {
     return await fs.readFile(fullPath, "utf-8");
   }
 
-  /**
-   * Add an import statement to current file
-   */
   private addImport(statement: string): void {
     if (!this.currentFile) {
       throw new Error("addImport called outside of file processing");
@@ -182,9 +141,6 @@ export class TemplateEngine {
     this.currentFile.imports.add(statement);
   }
 
-  /**
-   * Conditionally return content
-   */
   private when(condition: boolean, content: string): string {
     return condition ? content : "";
   }

@@ -1,7 +1,3 @@
-/**
- * Post-processing utilities for generated project files
- */
-
 import * as esbuild from "esbuild";
 
 export interface PostProcessOptions {
@@ -9,9 +5,6 @@ export interface PostProcessOptions {
   transpileToJS?: boolean;
 }
 
-/**
- * Post-process a file: format with prettier and optionally transpile TS to JS
- */
 export async function postProcessFile(
   filePath: string,
   content: string,
@@ -20,12 +13,10 @@ export async function postProcessFile(
   let processedContent = content;
   let processedPath = filePath;
 
-  // Transpile TypeScript to JavaScript FIRST (before prettier)
-  // Only transpile actual TypeScript/TSX files (not JSON, CSS, HTML, etc.)
   if (options.transpileToJS && canTranspile(filePath)) {
     try {
       const result = await esbuild.transform(processedContent, {
-        loader: "tsx", // Always use tsx loader since templates are TypeScript
+        loader: "tsx",
         format: "esm",
         target: "es2020",
       });
@@ -38,7 +29,6 @@ export async function postProcessFile(
     }
   }
 
-  // Prettier formatting (after transpilation so it formats JS not TS)
   if (options.prettier) {
     try {
       const prettier = await import("prettier");
@@ -53,7 +43,6 @@ export async function postProcessFile(
         prettierConfig,
       );
     } catch (error) {
-      // If prettier fails, continue with unformatted content
       console.warn(`Failed to format ${processedPath}:`, error);
     }
   }
@@ -64,9 +53,6 @@ export async function postProcessFile(
   };
 }
 
-/**
- * Post-process all files in a directory
- */
 export async function postProcessProject(
   projectPath: string,
   files: Map<string, string>,

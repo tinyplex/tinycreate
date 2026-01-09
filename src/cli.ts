@@ -1,7 +1,3 @@
-/**
- * Generic CLI harness for tinycreate
- */
-
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import prompts from "prompts";
@@ -25,28 +21,15 @@ export interface FileConfig {
 }
 
 export interface ProjectConfig {
-  // Welcome message (optional)
   welcomeMessage?: string;
-
-  // Questions to ask the user
   questions: Question[];
-
-  // Function to create template context from answers
   createContext: (answers: Record<string, unknown>) => TemplateContext;
-
-  // Function to get the list of files to generate
   getFiles: (context: TemplateContext) => FileConfig[] | Promise<FileConfig[]>;
-
-  // Root directory containing templates
   templateRoot: string;
-
-  // Function to create additional directories (optional)
   createDirectories?: (
     targetDir: string,
     context: TemplateContext,
   ) => Promise<void>;
-
-  // Success message callback (optional)
   onSuccess?: (projectName: string, context: TemplateContext) => void;
 }
 
@@ -55,9 +38,6 @@ export interface CLIOptions {
   args?: string[];
 }
 
-/**
- * Create and run a CLI based on the provided configuration
- */
 export async function createCLI(
   config: ProjectConfig,
   options: CLIOptions = {},
@@ -73,14 +53,12 @@ export async function createCLI(
   let answers: Record<string, unknown>;
 
   if (nonInteractive) {
-    // Parse command-line arguments
     answers = {};
     for (const question of config.questions) {
       const argName = `--${question.name}`;
       const argIndex = args.indexOf(argName);
       if (argIndex !== -1 && argIndex + 1 < args.length) {
         const value = args[argIndex + 1];
-        // Convert to appropriate type
         if (question.type === "confirm") {
           answers[question.name] = value === "true";
         } else {
@@ -112,7 +90,6 @@ export async function createCLI(
   try {
     await mkdir(projectPath, { recursive: true });
 
-    // Create additional directories if specified
     if (config.createDirectories) {
       await config.createDirectories(projectPath, context);
     }
