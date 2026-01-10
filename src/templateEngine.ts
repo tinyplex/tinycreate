@@ -65,16 +65,21 @@ export class TemplateEngine {
       return new Handlebars.SafeString(result + '\n');
     });
 
+    this.handlebars.registerHelper('eq', (a: any, b: any) => {
+      return a === b;
+    });
+
     this.handlebars.registerHelper('includeFile', (options: any) => {
       if (!this.currentFile) return '';
 
-      const template = options.hash.template || '';
+      const templatePath = options.hash.template || '';
       const outputTemplate = options.hash.output || '';
       const prettier = options.hash.prettier;
       const transpile = options.hash.transpile;
 
-      if (template && outputTemplate) {
-        // Process the output path as a template
+      if (templatePath && outputTemplate) {
+        // Process both the template path and output path as templates
+        const template = this.handlebars.compile(templatePath)(this.context);
         const output = this.handlebars.compile(outputTemplate)(this.context);
 
         this.currentFile.includedFiles.push({

@@ -282,6 +282,9 @@ async function generateProject(
       postProcessOptions,
     );
 
-    await writeFile(join(targetDir, filePath), content);
+    const fullPath = join(targetDir, filePath);
+    const {dirname} = await import('path');
+    await mkdir(dirname(fullPath), {recursive: true});
+    await writeFile(fullPath, content);
   }
 }
