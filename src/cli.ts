@@ -239,11 +239,36 @@ async function generateProject(
     }
   }
 
-  // Process any remaining included files
+  // Process any remaining included files (recursively)
+  let i = files.length;
+  while (i < allFiles.length) {
+    const file = allFiles[i];
+    const {content, includedFiles} = await engine.processTemplate(
+      file.template,
+    );
+    file.processedContent = content;
+    processedTemplates.add(file.template);
+
+    // Add any newly discovered included files
+    for (const included of includedFiles) {
+      if (!processedTemplates.has(included.template)) {
+        const processedIncluded = config.processIncludedFile
+          ? config.processIncludedFile(included, context)
+          : included;
+        allFiles.push({
+          ...processedIncluded,
+          processedContent: '', // Will be processed in next iteration
+        });
+      }
+    }
+
+    i++;
+  }
+
+  // Write all files
   for (const file of allFiles) {
     if (!file.processedContent) {
-      const {content} = await engine.processTemplate(file.template);
-      file.processedContent = content;
+      throw new Error(`File ${file.output} was not processed`);
     }
 
     const postProcessOptions: PostProcessOptions = {
