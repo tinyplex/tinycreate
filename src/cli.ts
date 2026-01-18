@@ -15,7 +15,14 @@ function detectPackageManager(): string {
 }
 
 export interface Question {
-  type: 'text' | 'select' | 'confirm';
+  type:
+    | 'text'
+    | 'select'
+    | 'confirm'
+    | ((
+        prev: unknown,
+        answers: Record<string, unknown>,
+      ) => 'text' | 'select' | 'confirm' | null);
   name: string;
   message: string;
   initial?: string | number | boolean;

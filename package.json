@@ -1,10 +1,10 @@
 {
   "name": "tinycreate",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "author": "jamesgpearce",
   "repository": "github:tinyplex/tinycreate",
   "license": "MIT",
-  "description": "A flexible CLI framework for scaffolding projects with templates",
+  "description": "A flexible CLI framework for scaffolding projects with templates.",
   "keywords": [
     "cli",
     "scaffolding",
