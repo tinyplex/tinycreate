@@ -1,4 +1,4 @@
-import * as esbuild from 'esbuild';
+import tsBlankSpace from 'ts-blank-space';
 
 export interface PostProcessOptions {
   prettier?: boolean;
@@ -15,13 +15,7 @@ export async function postProcessFile(
 
   if (options.transpileToJS && canTranspile(filePath)) {
     try {
-      const result = await esbuild.transform(processedContent, {
-        loader: 'tsx',
-        format: 'esm',
-        target: 'es2020',
-        jsx: 'preserve',
-      });
-      processedContent = result.code;
+      processedContent = tsBlankSpace(processedContent);
       processedPath = transpileExtension(filePath);
     } catch (error) {
       throw new Error(

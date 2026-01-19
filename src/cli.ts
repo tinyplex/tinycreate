@@ -54,6 +54,7 @@ export interface ProjectConfig {
   ) => Promise<void>;
   installCommand?: string;
   devCommand?: string;
+  workingDirectory?: string | ((context: TemplateContext) => string);
   onSuccess?: (
     projectName: string,
     context: TemplateContext,
@@ -141,6 +142,8 @@ export async function createCLI(
           projectPath,
           config.installCommand,
           config.devCommand,
+          config.workingDirectory,
+          context,
         );
       } else if (config.onSuccess) {
         await config.onSuccess(projectName, context);
@@ -158,20 +161,26 @@ async function handleInstallAndRun(
   projectPath: string,
   installCommand: string,
   devCommand: string,
+  workingDirectory?: string | ((context: TemplateContext) => string),
+  context?: TemplateContext,
 ): Promise<void> {
   const {spawn} = await import('child_process');
+  const {join} = await import('path');
   const pm = detectPackageManager();
 
   const install = installCommand.replace(/{pm}/g, pm);
   const dev = devCommand.replace(/{pm}/g, pm);
 
-  const [installCmd, ...installArgs] = install.split(' ');
-  const [devCmd, ...devArgs] = dev.split(' ');
+  const workDir =
+    typeof workingDirectory === 'function'
+      ? workingDirectory(context!)
+      : workingDirectory;
+  const cwd = workDir ? join(projectPath, workDir) : projectPath;
 
   console.log(`📦 Installing dependencies with ${pm}...\n`);
 
-  const installProcess = spawn(installCmd, installArgs, {
-    cwd: projectPath,
+  const installProcess = spawn(install, [], {
+    cwd,
     stdio: 'inherit',
     shell: true,
   });
@@ -189,8 +198,8 @@ async function handleInstallAndRun(
     console.log('\n✅ Dependencies installed!\n');
     console.log('🚀 Starting development server...\n');
 
-    const devProcess = spawn(devCmd, devArgs, {
-      cwd: projectPath,
+    const devProcess = spawn(dev, [], {
+      cwd,
       stdio: 'inherit',
       shell: true,
     });

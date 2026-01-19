@@ -16,7 +16,13 @@ await build({
   format: 'esm',
   outfile: 'dist/index.js',
   target: 'node18',
-  external: ['prompts', 'esbuild', 'prettier', 'typescript', 'handlebars'],
+  external: [
+    'prompts',
+    'prettier',
+    'typescript',
+    'handlebars',
+    'ts-blank-space',
+  ],
 });
 
 await execAsync(

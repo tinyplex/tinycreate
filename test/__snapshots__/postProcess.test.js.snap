@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`postProcess > should format TypeScript with prettier 1`] = `
+{
+  "content": "const x = {a: 1, b: 2};
+function hello() {
+  return 'world';
+}
+",
+  "filePath": "test.ts",
+}
+`;
+
+exports[`postProcess > should format and transpile together 1`] = `
+{
+  "content": "const add = (a, b) => {
+  return a + b;
+};
+",
+  "filePath": "math.js",
+}
+`;
+
+exports[`postProcess > should handle non-TS files without transpiling 1`] = `
+{
+  "content": "body {
+  margin: 0;
+  padding: 0;
+}
+",
+  "filePath": "styles.css",
+}
+`;
+
+exports[`postProcess > should preserve blank lines when transpiling TypeScript to JavaScript 1`] = `
+{
+  "content": "import './styles.css';
+import {createButton} from './button';
+import {createInput} from './input';
+
+export const createTodoInput = (store) => {
+  const container = document.createElement('div');
+  container.id = 'todoInput';
+
+  const input = createInput('What needs to be done?');
+
+  const addTodo = () => {
+    const text = input.value.trim();
+    if (text) {
+      store.addRow('todos', {text, completed: false});
+      input.value = '';
+      input.focus();
+    }
+  };
+};",
+  "filePath": "todoInput.js",
+}
+`;
+
+exports[`postProcess > should transpile TSX to JSX 1`] = `
+{
+  "content": "const Component = ({ title }) => {
+  return <div>{title}</div>;
+};
+export {
+  Component
+};
+",
+  "filePath": "Component.jsx",
+}
+`;
+
+exports[`postProcess > should transpile TypeScript to JavaScript 1`] = `
+{
+  "content": "const greet = (name) => {
+  return \`Hello, \${name}!\`;
+};
+",
+  "filePath": "utils.js",
+}
+`;

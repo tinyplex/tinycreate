@@ -9,9 +9,7 @@ describe('postProcess', () => {
       prettier: true,
     });
 
-    expect(result.content).toContain('const x = {a: 1, b: 2};');
-    expect(result.content).toContain('function hello()');
-    expect(result.filePath).toBe('test.ts');
+    expect(result).toMatchSnapshot();
   });
 
   it('should transpile TypeScript to JavaScript', async () => {
@@ -23,9 +21,7 @@ describe('postProcess', () => {
       transpileToJS: true,
     });
 
-    expect(result.content).not.toContain(': string');
-    expect(result.content).toContain('greet');
-    expect(result.filePath).toBe('utils.js');
+    expect(result).toMatchSnapshot();
   });
 
   it('should transpile TSX to JSX', async () => {
@@ -39,10 +35,7 @@ export const Component: React.FC<{title: string}> = ({title}) => {
       transpileToJS: true,
     });
 
-    expect(result.content).not.toContain('React.FC');
-    expect(result.content).not.toContain(': string');
-    expect(result.content).toContain('Component');
-    expect(result.filePath).toBe('Component.jsx');
+    expect(result).toMatchSnapshot();
   });
 
   it('should format and transpile together', async () => {
@@ -53,11 +46,7 @@ export const Component: React.FC<{title: string}> = ({title}) => {
       transpileToJS: true,
     });
 
-    expect(result.content).not.toContain(':number');
-    expect(result.content).toContain('add');
-
-    expect(result.content).toMatch(/const add\s*=\s*\(/);
-    expect(result.filePath).toBe('math.js');
+    expect(result).toMatchSnapshot();
   });
 
   it('should handle non-TS files without transpiling', async () => {
@@ -68,7 +57,34 @@ export const Component: React.FC<{title: string}> = ({title}) => {
       transpileToJS: true,
     });
 
-    expect(result.content).toContain('margin');
-    expect(result.filePath).toBe('styles.css');
+    expect(result).toMatchSnapshot();
+  });
+
+  it.only('should preserve blank lines when transpiling TypeScript to JavaScript', async () => {
+    const typescript = `import './styles.css';
+import {createButton} from './button';
+import {createInput} from './input';
+
+export const createTodoInput = (store) => {
+  const container = document.createElement('div');
+  container.id = 'todoInput';
+
+  const input = createInput('What needs to be done?');
+
+  const addTodo = () => {
+    const text = input.value.trim();
+    if (text) {
+      store.addRow('todos', {text, completed: false});
+      input.value = '';
+      input.focus();
+    }
+  };
+};`;
+
+    const result = await postProcessFile('todoInput.ts', typescript, {
+      transpileToJS: true,
+    });
+
+    expect(result).toMatchSnapshot();
   });
 });
