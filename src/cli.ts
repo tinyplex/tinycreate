@@ -5,7 +5,7 @@ import prompts from 'prompts';
 import {postProcessFile, type PostProcessOptions} from './postProcess.js';
 import {TemplateEngine, type TemplateContext} from './templateEngine.js';
 
-function detectPackageManager(): string {
+export function detectPackageManager(): string {
   const userAgent = process.env.npm_config_user_agent || '';
 
   if (userAgent.includes('pnpm')) return 'pnpm';
@@ -135,7 +135,6 @@ export async function createCLI(
     if (!nonInteractive) {
       console.log('✅ Done!\n');
 
-      // Handle install and run if configured
       if (config.installCommand && config.devCommand && context.installAndRun) {
         await handleInstallAndRun(
           projectName,
@@ -163,7 +162,6 @@ async function handleInstallAndRun(
   const {spawn} = await import('child_process');
   const pm = detectPackageManager();
 
-  // Replace {pm} placeholder with detected package manager
   const install = installCommand.replace(/{pm}/g, pm);
   const dev = devCommand.replace(/{pm}/g, pm);
 
@@ -222,17 +220,14 @@ async function generateProject(
   const allFiles = [...files];
   const processedTemplates = new Set<string>();
 
-  // Process files and collect included files
   for (const file of files) {
     const {content, includedFiles} = await engine.processTemplate(
       file.template,
     );
 
-    // Store the processed content
     file.processedContent = content;
     processedTemplates.add(file.template);
 
-    // Add included files to the list (avoiding duplicates)
     for (const included of includedFiles) {
       if (!processedTemplates.has(included.template)) {
         const processedIncluded = config.processIncludedFile
@@ -240,13 +235,12 @@ async function generateProject(
           : included;
         allFiles.push({
           ...processedIncluded,
-          processedContent: '', // Will be processed below
+          processedContent: '',
         });
       }
     }
   }
 
-  // Process any remaining included files (recursively)
   let i = files.length;
   while (i < allFiles.length) {
     const file = allFiles[i];
@@ -256,7 +250,6 @@ async function generateProject(
     file.processedContent = content;
     processedTemplates.add(file.template);
 
-    // Add any newly discovered included files
     for (const included of includedFiles) {
       if (!processedTemplates.has(included.template)) {
         const processedIncluded = config.processIncludedFile
@@ -264,7 +257,7 @@ async function generateProject(
           : included;
         allFiles.push({
           ...processedIncluded,
-          processedContent: '', // Will be processed in next iteration
+          processedContent: '',
         });
       }
     }
@@ -272,7 +265,6 @@ async function generateProject(
     i++;
   }
 
-  // Write all files
   for (const file of allFiles) {
     if (!file.processedContent) {
       throw new Error(`File ${file.output} was not processed`);

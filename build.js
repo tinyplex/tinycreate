@@ -8,7 +8,6 @@ const execAsync = promisify(exec);
 await rm('dist', {recursive: true, force: true});
 await mkdir('dist', {recursive: true});
 
-// Build TypeScript files
 await build({
   entryPoints: ['src/index.ts'],
   bundle: true,
@@ -20,12 +19,10 @@ await build({
   external: ['prompts', 'esbuild', 'prettier', 'typescript', 'handlebars'],
 });
 
-// Generate single bundled declaration file
 await execAsync(
   'npx dts-bundle-generator -o dist/index.d.ts src/index.ts --no-banner',
 );
 
-// Create package.json for publishing from dist
 const pkg = JSON.parse(await readFile('package.json', 'utf-8'));
 delete pkg.devDependencies;
 delete pkg.scripts;

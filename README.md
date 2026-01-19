@@ -11,15 +11,15 @@ templates with conditional logic, automatic imports, and code formatting.
 
 ## Features
 
-- ✨ **Interactive Prompts** - Built-in support for text, select, and confirm
+- **Interactive Prompts** - Built-in support for text, select, and confirm
   questions
-- 🎯 **Smart Templates** - Handlebars with custom helpers for common patterns
-- 📦 **Automatic Import Management** - Colocate imports with conditional logic
-- 🔄 **Intelligent Transpilation** - Convert TypeScript to JavaScript on demand
-- 🎨 **Code Formatting** - Built-in Prettier support with import organization
-- 🌳 **File Inclusion System** - Compose templates from reusable components
-- 🚀 **Non-Interactive Mode** - Full CLI argument support for CI/CD
-- 🔧 **Package Manager Detection** - Automatically uses npm, yarn, pnpm, or bun
+- **Smart Templates** - Handlebars with custom helpers for common patterns
+- **Automatic Import Management** - Colocate imports with conditional logic
+- **Intelligent Transpilation** - Convert TypeScript to JavaScript on demand
+- **Code Formatting** - Built-in Prettier support with import organization
+- **File Inclusion System** - Compose templates from reusable components
+- **Non-Interactive Mode** - Full CLI argument support for CI/CD
+- **Package Manager Detection** - Automatically uses npm, yarn, pnpm, or bun
 
 ## Installation
 
