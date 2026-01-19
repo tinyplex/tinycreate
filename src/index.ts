@@ -1,5 +1,6 @@
 export {
   createCLI,
+  detectPackageManager,
   type CLIOptions,
   type FileConfig,
   type ProjectConfig,
