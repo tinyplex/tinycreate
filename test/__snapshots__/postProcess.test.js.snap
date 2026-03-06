@@ -59,23 +59,20 @@ export const createTodoInput = (store) => {
 
 exports[`postProcess > should transpile TSX to JSX 1`] = `
 {
-  "content": "const Component = ({ title }) => {
+  "content": "import React from 'react';
+
+export const Component                            = ({title}) => {
   return <div>{title}</div>;
-};
-export {
-  Component
-};
-",
+};",
   "filePath": "Component.jsx",
 }
 `;
 
 exports[`postProcess > should transpile TypeScript to JavaScript 1`] = `
 {
-  "content": "const greet = (name) => {
+  "content": "const greet = (name        )         => {
   return \`Hello, \${name}!\`;
-};
-",
+};",
   "filePath": "utils.js",
 }
 `;

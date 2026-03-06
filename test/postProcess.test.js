@@ -60,7 +60,7 @@ export const Component: React.FC<{title: string}> = ({title}) => {
     expect(result).toMatchSnapshot();
   });
 
-  it.only('should preserve blank lines when transpiling TypeScript to JavaScript', async () => {
+  it('should preserve blank lines when transpiling TypeScript to JavaScript', async () => {
     const typescript = `import './styles.css';
 import {createButton} from './button';
 import {createInput} from './input';
