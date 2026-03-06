@@ -34,22 +34,22 @@
   },
   "dependencies": {
     "handlebars": "^4.7.8",
-    "prettier": "^3.8.0",
+    "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
     "prompts": "^2.4.2",
-    "ts-blank-space": "^0.6.2"
+    "ts-blank-space": "^0.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.3.5",
     "@types/prompts": "^2.4.9",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.27.3",
     "eslint": "^9.39.2",
     "eslint-plugin-import": "^2.32.0",
-    "globals": "^17.0.0",
+    "globals": "^17.4.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.0",
-    "vitest": "^4.0.17"
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.0.18"
   }
 }
