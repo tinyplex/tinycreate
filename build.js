@@ -19,6 +19,7 @@ await build({
   external: [
     'prompts',
     'prettier',
+    'prettier-plugin-svelte',
     'typescript',
     'handlebars',
     'ts-blank-space',
