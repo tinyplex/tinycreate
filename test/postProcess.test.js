@@ -60,6 +60,17 @@ export const Component: React.FC<{title: string}> = ({title}) => {
     expect(result).toMatchSnapshot();
   });
 
+  it('should format Svelte files with prettier', async () => {
+    const svelte = `<script lang="ts">const count=0;</script>
+<button on:click={()=>count++}>{count}</button>`;
+
+    const result = await postProcessFile('Counter.svelte', svelte, {
+      prettier: true,
+    });
+
+    expect(result).toMatchSnapshot();
+  });
+
   it('should preserve blank lines when transpiling TypeScript to JavaScript', async () => {
     const typescript = `import './styles.css';
 import {createButton} from './button';

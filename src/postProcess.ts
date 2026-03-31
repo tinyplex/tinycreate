@@ -1,3 +1,4 @@
+import type {Options} from 'prettier';
 import tsBlankSpace from 'ts-blank-space';
 
 export interface PostProcessOptions {
@@ -29,12 +30,17 @@ export async function postProcessFile(
   if (options.prettier) {
     try {
       const prettier = await import('prettier');
-      const prettierConfig = {
-        parser: inferParser(processedPath),
+      const parser = inferParser(processedPath);
+      const prettierConfig: Options = {
+        parser,
         singleQuote: true,
         trailingComma: 'all' as const,
         bracketSpacing: false,
       };
+      if (parser === 'svelte') {
+        const sveltePlugin = await import('prettier-plugin-svelte');
+        prettierConfig.plugins = [sveltePlugin.default ?? sveltePlugin];
+      }
       processedContent = await prettier.format(
         processedContent,
         prettierConfig,
@@ -98,6 +104,9 @@ function inferParser(filePath: string): string {
   }
   if (filePath.endsWith('.html')) {
     return 'html';
+  }
+  if (filePath.endsWith('.svelte')) {
+    return 'svelte';
   }
   if (filePath.endsWith('.md')) {
     return 'markdown';

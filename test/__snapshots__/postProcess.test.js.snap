@@ -1,5 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`postProcess > should format Svelte files with prettier 1`] = `
+{
+  "content": "<script lang="ts">
+  const count = 0;
+</script>
+
+<button on:click={() => count++}>{count}</button>
+",
+  "filePath": "Counter.svelte",
+}
+`;
+
 exports[`postProcess > should format TypeScript with prettier 1`] = `
 {
   "content": "const x = {a: 1, b: 2};

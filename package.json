@@ -1,6 +1,6 @@
 {
   "name": "tinycreate",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "jamesgpearce",
   "repository": "github:tinyplex/tinycreate",
   "license": "MIT",
@@ -36,6 +36,7 @@
     "handlebars": "^4.7.8",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-svelte": "^3.5.1",
     "prompts": "^2.4.2",
     "ts-blank-space": "^0.7.0"
   },
