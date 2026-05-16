@@ -1,5 +1,6 @@
 import type {Options} from 'prettier';
-import tsBlankSpace from 'ts-blank-space';
+import tsBlankSpace, {blankSourceFile} from 'ts-blank-space';
+import ts from 'typescript';
 
 export interface PostProcessOptions {
   prettier?: boolean;
@@ -16,8 +17,8 @@ export async function postProcessFile(
 
   if (options.transpileToJS && canTranspile(filePath)) {
     try {
-      processedContent = tsBlankSpace(processedContent);
       processedPath = transpileExtension(filePath);
+      processedContent = stripTypes(filePath, processedContent);
     } catch (error) {
       throw new Error(
         `Failed to transpile ${filePath}: ${
@@ -83,6 +84,22 @@ function transpileExtension(filePath: string): string {
   return filePath.replace(/\.tsx?$/, (match) => {
     return match === '.tsx' ? '.jsx' : '.js';
   });
+}
+
+function stripTypes(filePath: string, content: string): string {
+  if (filePath.endsWith('.tsx') || filePath.endsWith('.jsx')) {
+    return blankSourceFile(
+      ts.createSourceFile(
+        filePath,
+        content,
+        ts.ScriptTarget.ESNext,
+        false,
+        ts.ScriptKind.TSX,
+      ),
+    );
+  }
+
+  return tsBlankSpace(content);
 }
 
 function inferParser(filePath: string): string {

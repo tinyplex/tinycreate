@@ -38,6 +38,20 @@ export const Component: React.FC<{title: string}> = ({title}) => {
     expect(result).toMatchSnapshot();
   });
 
+  it('should preserve JSX child call expressions when transpiling TSX', async () => {
+    const tsx = `const player = useValue('currentPlayer', STORE_ID) as () => string;
+
+export const Component = () => {
+  return <span>{player()}</span>;
+};`;
+
+    const result = await postProcessFile('Component.tsx', tsx, {
+      transpileToJS: true,
+    });
+
+    expect(result).toMatchSnapshot();
+  });
+
   it('should format and transpile together', async () => {
     const unformattedTS = `const add=(a:number,b:number):number=>{return a+b;}`;
 

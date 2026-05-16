@@ -44,6 +44,17 @@ exports[`postProcess > should handle non-TS files without transpiling 1`] = `
 }
 `;
 
+exports[`postProcess > should preserve JSX child call expressions when transpiling TSX 1`] = `
+{
+  "content": "const player = useValue('currentPlayer', STORE_ID)                ;
+
+export const Component = () => {
+  return <span>{player()}</span>;
+};",
+  "filePath": "Component.jsx",
+}
+`;
+
 exports[`postProcess > should preserve blank lines when transpiling TypeScript to JavaScript 1`] = `
 {
   "content": "import './styles.css';
